@@ -8,3 +8,4 @@ data/details_inbox.jsonl
 data/seen_ids.json
 data/update.log
 data/last_digest.txt
+data/fresh_cards.json

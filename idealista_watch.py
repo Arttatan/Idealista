@@ -1444,12 +1444,63 @@ def init() -> None:
     write_workbook(rows)
 
 
+def normalize_card(card: dict) -> dict:
+    out = dict(card)
+    out["id"] = str(out.get("id") or "")
+    out["url"] = out.get("url") or out.get("href") or f"https://www.idealista.pt/en/imovel/{out['id']}/"
+    out["details"] = out.get("details") or []
+    return out
+
+
+def merge_fresh_cards(cards: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Добавить новые карточки к базе. Старые строки и даты Добавлено не трогаем."""
+    existing = load_json(LISTINGS_PATH, [])
+    by_id = {str(row.get("ID")): row for row in existing if isinstance(row, dict)}
+    for row in by_id.values():
+        row["Новое в этом обновлении"] = "Нет"
+    added_stamp = stamp()
+    fresh_rows: list[dict] = []
+    for raw in cards:
+        card = normalize_card(raw)
+        listing_id = card["id"]
+        if not listing_id:
+            continue
+        if listing_id in by_id:
+            continue
+        row = listing_from_card(card, added_stamp)
+        by_id[listing_id] = row
+        fresh_rows.append(row)
+    rows = list(by_id.values())
+    return rows, fresh_rows
+
+
+def update_from_cards(path: Path | None = None) -> None:
+    """Влить карточки из браузерного сбора (data/fresh_cards.json) в базу."""
+    source = path or (DATA / "fresh_cards.json")
+    cards = load_json(source, [])
+    if not cards:
+        raise SystemExit(f"Нет карточек в {source}")
+    rows, fresh_rows = merge_fresh_cards(cards)
+    log(f"карточек с Idealista: {len(cards)}; новых: {len(fresh_rows)}; всего в базе: {len(rows)}")
+    if fresh_rows:
+        enrich_places(fresh_rows)
+    save_json(LISTINGS_PATH, public_rows(rows))
+    seen = load_json(SEEN_PATH, [])
+    save_json(SEEN_PATH, sorted({*map(str, seen), *(str(row["ID"]) for row in rows)}))
+    write_workbook(rows)
+    log(f"готово: новых {len(fresh_rows)}, всего {len(rows)}")
+
+
 def update() -> None:
-    """Утренний заход. Если Idealista не отдал страницу, вчерашний файл не трогаем."""
+    """Утренний заход. Idealista часто режет прямой запрос — тогда берём data/fresh_cards.json."""
     log("старт обновления")
     existing = load_json(LISTINGS_PATH, [])
     if not existing:
         log("сохранённой базы нет, пропускаю обновление")
+        return
+    fresh_path = DATA / "fresh_cards.json"
+    if fresh_path.exists():
+        update_from_cards(fresh_path)
         return
     try:
         request = urllib.request.Request(SEARCH_URL, headers={"User-Agent": USER_AGENT})
@@ -1462,7 +1513,7 @@ def update() -> None:
     if status != 200 or "item-link" not in html and "Just a moment" in html:
         log("Idealista закрыл автоматический запрос. Файл не изменён.")
         return
-    log("поиск открылся, но полный разбор новых карточек в этом заходе не дописан до браузерного режима")
+    log("поиск открылся, но без файла data/fresh_cards.json полный разбор не запускаю")
 
 
 def places() -> None:
@@ -1491,8 +1542,10 @@ def main() -> None:
         places()
     elif command == "update":
         update()
+    elif command == "merge_cards":
+        update_from_cards()
     else:
-        raise SystemExit("Команды: init, excel, update")
+        raise SystemExit("Команды: init, excel, update, merge_cards")
 
 
 if __name__ == "__main__":

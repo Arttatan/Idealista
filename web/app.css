@@ -246,6 +246,20 @@ main { padding: 8px 28px 48px; max-width: 1280px; margin: 0 auto; }
   text-align: left;
   position: relative;
 }
+.card.is-new {
+  border-color: rgba(15, 111, 106, 0.4);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 42%);
+  box-shadow: 0 10px 28px rgba(15, 111, 106, 0.12);
+}
+:root[data-theme="dark"] .card.is-new {
+  border-color: rgba(125, 206, 198, 0.45);
+  background: linear-gradient(180deg, #1a3330 0%, var(--surface) 48%);
+}
+.badge.is-new-badge {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
 .card:hover { box-shadow: 0 14px 34px rgba(28, 36, 33, 0.1); }
 .card-top, .meta, .flags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .card-top { justify-content: space-between; }

@@ -87,7 +87,8 @@ function parseAdded(text) {
 
 function isNew(item) {
   const time = parseAdded(item.added);
-  return time != null && Date.now() - time < 24 * 60 * 60 * 1000;
+  // Окно как у фильтра Idealista «последние 48 часов».
+  return time != null && Date.now() - time < 48 * 60 * 60 * 1000;
 }
 
 function energyClass(letter) {
@@ -140,6 +141,7 @@ function filtered() {
   const statuses = selectedValues("f-status");
   const years = selectedValues("f-year");
   const favOnly = document.getElementById("f-fav").checked;
+  const newOnly = document.getElementById("f-new").checked;
   const park = document.getElementById("f-park").checked;
   const lift = document.getElementById("f-lift").checked;
   const sortKey = document.getElementById("sort").value;
@@ -160,6 +162,7 @@ function filtered() {
       if (!match) return false;
     }
     if (favOnly && !item.notes["Избранное"]) return false;
+    if (newOnly && !isNew(item)) return false;
     if (park && item.parking !== "Да") return false;
     if (lift && item.lift !== "Да") return false;
     if (query && !blob(item).includes(query)) return false;
@@ -169,6 +172,9 @@ function filtered() {
     const aFav = Boolean(a.notes && a.notes["Избранное"]);
     const bFav = Boolean(b.notes && b.notes["Избранное"]);
     if (aFav !== bFav) return aFav ? -1 : 1;
+    const aNew = isNew(a);
+    const bNew = isNew(b);
+    if (aNew !== bNew) return aNew ? -1 : 1;
     const left = sortValue(a, sortKey);
     const right = sortValue(b, sortKey);
     const leftMissing = left == null || left === "";
@@ -215,7 +221,7 @@ function starButton(item) {
 
 function flags(item) {
   const nodes = [];
-  if (isNew(item)) nodes.push(el("span", { class: "badge", text: "новая" }));
+  if (isNew(item)) nodes.push(el("span", { class: "badge is-new-badge", text: "новая" }));
   if (item.tenant === "Да") nodes.push(el("span", { class: "warn", text: "сдана" }));
   const status = item.notes && item.notes["Статус"];
   if (status && status !== "Новая") nodes.push(el("span", { class: "status", text: status }));
@@ -244,7 +250,7 @@ function openLink(item, className) {
 }
 
 function cardView(item) {
-  const card = el("article", { class: "card", tabindex: "0" },
+  const card = el("article", { class: isNew(item) ? "card is-new" : "card", tabindex: "0" },
     item.photo ? el("img", { class: "photo", src: item.photo, alt: "" }) : null,
     el("div", { class: "card-top" },
       el("div", {},
@@ -752,6 +758,7 @@ function bind() {
   document.getElementById("q").addEventListener("input", applyControls);
   ["f-min", "f-max"].forEach((id) => document.getElementById(id).addEventListener("input", applyControls));
   document.getElementById("f-fav").addEventListener("change", applyControls);
+  document.getElementById("f-new").addEventListener("change", applyControls);
   document.getElementById("f-park").addEventListener("change", applyControls);
   document.getElementById("f-lift").addEventListener("change", applyControls);
   document.addEventListener("click", (event) => {
@@ -769,6 +776,7 @@ function bind() {
     clearMulti("f-status", "Любой");
     clearMulti("f-year", "Любой");
     document.getElementById("f-fav").checked = false;
+    document.getElementById("f-new").checked = false;
     document.getElementById("f-park").checked = false;
     document.getElementById("f-lift").checked = false;
     applyControls();
