@@ -42,12 +42,36 @@
   </header>
   <main>
     <section class="filters" aria-label="Фильтры">
-      <label>Город<select id="f-city"></select></label>
+      <div class="multi" data-multi="f-city">
+        <span class="multi-label">Город</span>
+        <details>
+          <summary id="f-city-summary">Все города</summary>
+          <div class="multi-list" id="f-city"></div>
+        </details>
+      </div>
       <label>Цена от, €<input id="f-min" inputmode="numeric" placeholder="0"></label>
       <label>Цена до, €<input id="f-max" inputmode="numeric" placeholder="300 000"></label>
-      <label>Энергокласс<select id="f-energy"></select></label>
-      <label>Состояние<select id="f-cond"></select></label>
-      <label>Статус<select id="f-status"></select></label>
+      <div class="multi" data-multi="f-energy">
+        <span class="multi-label">Энергокласс</span>
+        <details>
+          <summary id="f-energy-summary">Любой</summary>
+          <div class="multi-list" id="f-energy"></div>
+        </details>
+      </div>
+      <div class="multi" data-multi="f-cond">
+        <span class="multi-label">Состояние</span>
+        <details>
+          <summary id="f-cond-summary">Любое</summary>
+          <div class="multi-list" id="f-cond"></div>
+        </details>
+      </div>
+      <div class="multi" data-multi="f-status">
+        <span class="multi-label">Статус</span>
+        <details>
+          <summary id="f-status-summary">Любой</summary>
+          <div class="multi-list" id="f-status"></div>
+        </details>
+      </div>
       <label class="check"><input type="checkbox" id="f-fav"> Только избранные</label>
       <label class="check"><input type="checkbox" id="f-park"> Только с парковкой</label>
       <label class="check"><input type="checkbox" id="f-lift"> Только с лифтом</label>

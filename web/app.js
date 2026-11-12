@@ -132,25 +132,27 @@ function sortValue(item, key) {
 
 function filtered() {
   const query = fold(document.getElementById("q").value.trim());
-  const city = document.getElementById("f-city").value;
+  const cities = selectedValues("f-city");
   const min = numOrNull(document.getElementById("f-min").value);
   const max = numOrNull(document.getElementById("f-max").value);
-  const energy = document.getElementById("f-energy").value;
-  const condition = document.getElementById("f-cond").value;
-  const status = document.getElementById("f-status").value;
+  const energies = selectedValues("f-energy");
+  const conditions = selectedValues("f-cond");
+  const statuses = selectedValues("f-status");
   const favOnly = document.getElementById("f-fav").checked;
   const park = document.getElementById("f-park").checked;
   const lift = document.getElementById("f-lift").checked;
   const sortKey = document.getElementById("sort").value;
   const direction = state.dir === "asc" ? 1 : -1;
   const items = state.all.filter((item) => {
-    if (city && item.city !== city) return false;
+    if (cities.length && !cities.includes(item.city)) return false;
     if (min != null && !(item.price >= min)) return false;
     if (max != null && !(item.price <= max)) return false;
-    if (energy === "__empty__" && item.energy) return false;
-    if (energy && energy !== "__empty__" && item.energy !== energy) return false;
-    if (condition && item.condition !== condition) return false;
-    if (status && (item.notes.Статус || "") !== status) return false;
+    if (energies.length) {
+      const match = energies.some((value) => (value === "__empty__" ? !item.energy : item.energy === value));
+      if (!match) return false;
+    }
+    if (conditions.length && !conditions.includes(item.condition)) return false;
+    if (statuses.length && !statuses.includes(item.notes.Статус || "")) return false;
     if (favOnly && !item.notes["Избранное"]) return false;
     if (park && item.parking !== "Да") return false;
     if (lift && item.lift !== "Да") return false;
@@ -365,12 +367,45 @@ function paintDir() {
   button.setAttribute("aria-label", desc ? "По убыванию" : "По возрастанию");
 }
 
-function fillSelect(id, values, allLabel) {
-  const select = document.getElementById(id);
-  const current = select.value;
-  select.replaceChildren(el("option", { value: "", text: allLabel }));
-  values.forEach((value) => select.append(el("option", { value, text: value })));
-  if ([...select.options].some((option) => option.value === current)) select.value = current;
+function selectedValues(id) {
+  return [...document.querySelectorAll(`#${id} input[type="checkbox"]:checked`)].map((input) => input.value);
+}
+
+function paintMultiSummary(id, emptyLabel) {
+  const picked = selectedValues(id);
+  const summary = document.getElementById(`${id}-summary`);
+  if (!picked.length) {
+    summary.textContent = emptyLabel;
+    return;
+  }
+  if (picked.length <= 2) {
+    summary.textContent = picked.map((value) => (value === "__empty__" ? "не указан" : value)).join(", ");
+    return;
+  }
+  summary.textContent = `Выбрано: ${picked.length}`;
+}
+
+function fillMulti(id, options, emptyLabel) {
+  const box = document.getElementById(id);
+  const kept = new Set(selectedValues(id));
+  box.replaceChildren();
+  options.forEach(({ value, label }) => {
+    const input = el("input", { type: "checkbox", value });
+    input.checked = kept.has(value);
+    input.addEventListener("change", () => {
+      paintMultiSummary(id, emptyLabel);
+      applyControls();
+    });
+    box.append(el("label", {}, input, label));
+  });
+  paintMultiSummary(id, emptyLabel);
+}
+
+function clearMulti(id, emptyLabel) {
+  document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach((input) => {
+    input.checked = false;
+  });
+  paintMultiSummary(id, emptyLabel);
 }
 
 function fillFilters() {
@@ -379,15 +414,12 @@ function fillFilters() {
   const energies = ENERGY_ORDER.filter((letter) => state.all.some((item) => item.energy === letter));
   const extraEnergy = [...new Set(state.all.map((item) => item.energy).filter((letter) => letter && !energies.includes(letter)))];
   const statuses = [...new Set([...STATUSES, ...state.all.map((item) => item.notes.Статус).filter(Boolean)])];
-  fillSelect("f-city", cities, "Все города");
-  fillSelect("f-cond", conditions, "Любое");
-  fillSelect("f-status", statuses, "Любой");
-  const energy = document.getElementById("f-energy");
-  const current = energy.value;
-  energy.replaceChildren(el("option", { value: "", text: "Любой" }));
-  [...energies, ...extraEnergy].forEach((letter) => energy.append(el("option", { value: letter, text: letter })));
-  if (state.all.some((item) => !item.energy)) energy.append(el("option", { value: "__empty__", text: "не указан" }));
-  if ([...energy.options].some((option) => option.value === current)) energy.value = current;
+  fillMulti("f-city", cities.map((value) => ({ value, label: value })), "Все города");
+  fillMulti("f-cond", conditions.map((value) => ({ value, label: value })), "Любое");
+  fillMulti("f-status", statuses.map((value) => ({ value, label: value })), "Любой");
+  const energyOptions = [...energies, ...extraEnergy].map((letter) => ({ value: letter, label: letter }));
+  if (state.all.some((item) => !item.energy)) energyOptions.push({ value: "__empty__", label: "не указан" });
+  fillMulti("f-energy", energyOptions, "Любой");
 }
 
 function fieldSelect(name, label, values, current, wide) {
@@ -707,21 +739,23 @@ function applyTheme(theme) {
 
 function bind() {
   document.getElementById("q").addEventListener("input", applyControls);
-  ["f-city", "f-energy", "f-cond", "f-status"].forEach((id) => {
-    document.getElementById(id).addEventListener("change", applyControls);
-  });
   ["f-min", "f-max"].forEach((id) => document.getElementById(id).addEventListener("input", applyControls));
   document.getElementById("f-fav").addEventListener("change", applyControls);
   document.getElementById("f-park").addEventListener("change", applyControls);
   document.getElementById("f-lift").addEventListener("change", applyControls);
+  document.addEventListener("click", (event) => {
+    document.querySelectorAll(".filters details[open]").forEach((details) => {
+      if (!details.contains(event.target)) details.open = false;
+    });
+  });
   document.getElementById("f-reset").addEventListener("click", () => {
     document.getElementById("q").value = "";
-    document.getElementById("f-city").value = "";
     document.getElementById("f-min").value = "";
     document.getElementById("f-max").value = "";
-    document.getElementById("f-energy").value = "";
-    document.getElementById("f-cond").value = "";
-    document.getElementById("f-status").value = "";
+    clearMulti("f-city", "Все города");
+    clearMulti("f-energy", "Любой");
+    clearMulti("f-cond", "Любое");
+    clearMulti("f-status", "Любой");
     document.getElementById("f-fav").checked = false;
     document.getElementById("f-park").checked = false;
     document.getElementById("f-lift").checked = false;
