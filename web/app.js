@@ -138,6 +138,7 @@ function filtered() {
   const energy = document.getElementById("f-energy").value;
   const condition = document.getElementById("f-cond").value;
   const status = document.getElementById("f-status").value;
+  const favOnly = document.getElementById("f-fav").checked;
   const park = document.getElementById("f-park").checked;
   const lift = document.getElementById("f-lift").checked;
   const sortKey = document.getElementById("sort").value;
@@ -150,12 +151,16 @@ function filtered() {
     if (energy && energy !== "__empty__" && item.energy !== energy) return false;
     if (condition && item.condition !== condition) return false;
     if (status && (item.notes.Статус || "") !== status) return false;
+    if (favOnly && !item.notes["Избранное"]) return false;
     if (park && item.parking !== "Да") return false;
     if (lift && item.lift !== "Да") return false;
     if (query && !blob(item).includes(query)) return false;
     return true;
   });
   items.sort((a, b) => {
+    const aFav = Boolean(a.notes && a.notes["Избранное"]);
+    const bFav = Boolean(b.notes && b.notes["Избранное"]);
+    if (aFav !== bFav) return aFav ? -1 : 1;
     const left = sortValue(a, sortKey);
     const right = sortValue(b, sortKey);
     const leftMissing = left == null || left === "";
@@ -706,6 +711,7 @@ function bind() {
     document.getElementById(id).addEventListener("change", applyControls);
   });
   ["f-min", "f-max"].forEach((id) => document.getElementById(id).addEventListener("input", applyControls));
+  document.getElementById("f-fav").addEventListener("change", applyControls);
   document.getElementById("f-park").addEventListener("change", applyControls);
   document.getElementById("f-lift").addEventListener("change", applyControls);
   document.getElementById("f-reset").addEventListener("click", () => {
@@ -716,6 +722,7 @@ function bind() {
     document.getElementById("f-energy").value = "";
     document.getElementById("f-cond").value = "";
     document.getElementById("f-status").value = "";
+    document.getElementById("f-fav").checked = false;
     document.getElementById("f-park").checked = false;
     document.getElementById("f-lift").checked = false;
     applyControls();
