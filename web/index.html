@@ -41,6 +41,17 @@
     </div>
   </header>
   <main>
+    <div id="columns-bar" class="columns-bar hidden" aria-label="Колонки таблицы">
+      <div class="multi" data-multi="f-cols">
+        <span class="multi-label">Колонки в таблице</span>
+        <details>
+          <summary id="f-cols-summary">Выбрано</summary>
+          <div class="multi-list" id="f-cols"></div>
+        </details>
+      </div>
+      <button type="button" id="cols-essential" class="ghost">Только важное</button>
+      <button type="button" id="cols-all" class="ghost">Все колонки</button>
+    </div>
     <section class="filters" aria-label="Фильтры">
       <div class="multi" data-multi="f-city">
         <span class="multi-label">Город</span>

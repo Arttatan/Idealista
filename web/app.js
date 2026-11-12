@@ -3,6 +3,42 @@ const PRIORITIES = ["1 — смотреть первой", "2 — интерес
 const ENERGY_ORDER = ["A+", "A", "B", "C", "D", "E", "F", "G"];
 const DEFAULT_DIR = { added: "desc", price: "asc", rent: "desc", yield: "desc", year: "desc" };
 
+const TABLE_COLUMNS = [
+  { id: "fav", label: "★", essential: true },
+  { id: "status", label: "Статус", essential: true },
+  { id: "link", label: "Ссылка", essential: true },
+  { id: "place", label: "Город / район", essential: true },
+  { id: "price", label: "Цена", essential: true },
+  { id: "rent", label: "Оценка аренды", essential: true },
+  { id: "yield", label: "Доходность", essential: false },
+  { id: "payback", label: "Окупаемость", essential: false },
+  { id: "metro", label: "Метро", essential: true },
+  { id: "shop", label: "Магазин", essential: true },
+  { id: "condition", label: "Состояние", essential: false },
+  { id: "energy", label: "Энергокласс", essential: true },
+  { id: "year", label: "Год", essential: true },
+  { id: "kind", label: "Квартира", essential: false },
+  { id: "address", label: "Адрес", essential: false },
+  { id: "floor", label: "Этаж", essential: false },
+  { id: "lift", label: "Лифт", essential: false },
+  { id: "parking", label: "Парковка", essential: false },
+  { id: "balcony", label: "Балкон / терраса", essential: false },
+  { id: "tenant", label: "Сдана", essential: false },
+  { id: "agency", label: "Агентство", essential: false },
+  { id: "area", label: "Район по услугам", essential: false },
+  { id: "score", label: "Балл удобства", essential: false },
+  { id: "pharmacy", label: "Аптека", essential: false },
+  { id: "school", label: "Школа", essential: false },
+  { id: "kindergarten", label: "Детский сад", essential: false },
+  { id: "transit", label: "Остановка", essential: false },
+  { id: "park", label: "Парк", essential: false },
+  { id: "health", label: "Медицина", essential: false },
+  { id: "added", label: "Добавлено", essential: false },
+];
+
+const ESSENTIAL_COLS = TABLE_COLUMNS.filter((col) => col.essential).map((col) => col.id);
+const ALL_COLS = TABLE_COLUMNS.map((col) => col.id);
+
 const state = {
   all: [],
   rates: {},
@@ -14,7 +50,26 @@ const state = {
   cluster: null,
   tiles: null,
   shared: false,
+  columns: loadColumns(),
 };
+
+function loadColumns() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("idealista-columns") || "null");
+    if (Array.isArray(saved) && saved.length) {
+      const allowed = new Set(ALL_COLS);
+      const picked = saved.filter((id) => allowed.has(id));
+      if (picked.length) return picked;
+    }
+  } catch (error) {
+    /* default */
+  }
+  return [...ESSENTIAL_COLS];
+}
+
+function saveColumns() {
+  localStorage.setItem("idealista-columns", JSON.stringify(state.columns));
+}
 
 const timers = new Map();
 let leafletPromise = null;
@@ -326,35 +381,157 @@ function statusSelect(item) {
   return select;
 }
 
+function factValue(item, label) {
+  const fact = (item.facts || []).find((entry) => entry.label === label);
+  return fact ? fact.value : "";
+}
+
+function textCell(label, value, className) {
+  return el("td", { class: className || "", "data-label": label, text: value || "—" });
+}
+
+function columnVisible(id) {
+  return state.columns.includes(id);
+}
+
+function paintColumnsSummary() {
+  const summary = document.getElementById("f-cols-summary");
+  if (!summary) return;
+  const n = state.columns.length;
+  if (n === ALL_COLS.length) summary.textContent = "Все колонки";
+  else if (n === ESSENTIAL_COLS.length && ESSENTIAL_COLS.every((id) => state.columns.includes(id))) {
+    summary.textContent = "Только важное";
+  } else summary.textContent = `Выбрано: ${n}`;
+}
+
+function fillColumnPicker() {
+  const box = document.getElementById("f-cols");
+  if (!box) return;
+  box.replaceChildren();
+  TABLE_COLUMNS.forEach((col) => {
+    const input = el("input", { type: "checkbox", value: col.id });
+    input.checked = columnVisible(col.id);
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        if (!state.columns.includes(col.id)) state.columns.push(col.id);
+      } else {
+        if (state.columns.length <= 1) {
+          input.checked = true;
+          return;
+        }
+        state.columns = state.columns.filter((id) => id !== col.id);
+      }
+      // keep order as in TABLE_COLUMNS
+      state.columns = ALL_COLS.filter((id) => state.columns.includes(id));
+      saveColumns();
+      paintColumnsSummary();
+      applyControls();
+    });
+    box.append(el("label", {}, input, col.label));
+  });
+  paintColumnsSummary();
+}
+
+function setColumns(ids) {
+  state.columns = ALL_COLS.filter((id) => ids.includes(id));
+  if (!state.columns.length) state.columns = [...ESSENTIAL_COLS];
+  saveColumns();
+  fillColumnPicker();
+  applyControls();
+}
+
+function headerCell(col) {
+  if (col.id === "price") {
+    return el("th", { class: `col-${col.id}` }, el("button", { type: "button", text: col.label, onClick: () => sortBy("price") }));
+  }
+  if (col.id === "rent") {
+    return el("th", { class: `col-${col.id}` }, el("button", { type: "button", text: col.label, onClick: () => sortBy("rent") }));
+  }
+  if (col.id === "year") {
+    return el("th", { class: `col-${col.id}` }, el("button", { type: "button", text: col.label, onClick: () => sortBy("year") }));
+  }
+  if (col.id === "yield") {
+    return el("th", { class: `col-${col.id}` }, el("button", { type: "button", text: col.label, onClick: () => sortBy("yield") }));
+  }
+  return el("th", { class: `col-${col.id}`, text: col.label });
+}
+
+function cellFor(col, item) {
+  switch (col.id) {
+    case "fav":
+      return el("td", { class: "fav-cell", "data-label": "Избранное" }, starButton(item));
+    case "status":
+      return el("td", { "data-label": "Статус" }, statusSelect(item));
+    case "link":
+      return el("td", { "data-label": "Ссылка" }, tableLink(item));
+    case "place":
+      return textCell("Город / район", item.place || item.city);
+    case "price":
+      return textCell("Цена", euro(item.price));
+    case "rent":
+      return rentCell(item);
+    case "yield":
+      return textCell("Доходность", item.rent && item.rent.yield_pct != null ? pct(item.rent.yield_pct) : "—");
+    case "payback":
+      return textCell("Окупаемость", item.rent && item.rent.payback_years != null ? yearsLabel(item.rent.payback_years) : "—");
+    case "metro":
+      return nearCell("Метро", item.metro && item.metro.full ? item.metro : item.transit);
+    case "shop":
+      return nearCell("Магазин", item.shop);
+    case "condition":
+      return textCell("Состояние", item.condition);
+    case "energy":
+      return el("td", { "data-label": "Энергокласс" }, item.energy
+        ? el("span", { class: `energy ${energyClass(item.energy)}`, text: item.energy })
+        : "—");
+    case "year":
+      return textCell("Год постройки", item.year);
+    case "kind":
+      return textCell("Квартира", item.kind || factValue(item, "Квартира"));
+    case "address":
+      return textCell("Адрес", item.address || factValue(item, "Адрес или ориентир"));
+    case "floor":
+      return textCell("Этаж", factValue(item, "Этаж"));
+    case "lift":
+      return textCell("Лифт", item.lift || factValue(item, "Лифт"));
+    case "parking":
+      return textCell("Парковка", item.parking || factValue(item, "Парковка"));
+    case "balcony":
+      return textCell("Балкон / терраса", factValue(item, "Балкон или терраса"));
+    case "tenant":
+      return textCell("Сдана", item.tenant || factValue(item, "Сдана арендаторам"));
+    case "agency":
+      return textCell("Агентство", item.agency || factValue(item, "Агентство"));
+    case "area":
+      return textCell("Район по услугам", factValue(item, "Район по услугам"));
+    case "score":
+      return textCell("Балл удобства", factValue(item, "Балл удобства"));
+    case "pharmacy":
+      return textCell("Аптека", factValue(item, "Аптеки"));
+    case "school":
+      return textCell("Школа", factValue(item, "Школы"));
+    case "kindergarten":
+      return textCell("Детский сад", factValue(item, "Детские сады"));
+    case "transit":
+      return nearCell("Остановка", item.transit);
+    case "park":
+      return textCell("Парк", factValue(item, "Парк"));
+    case "health":
+      return textCell("Медицина", factValue(item, "Медицина"));
+    case "added":
+      return textCell("Добавлено", item.added || factValue(item, "Добавлено"));
+    default:
+      return textCell(col.label, "—");
+  }
+}
+
 function tableView(items) {
-  const head = el("tr", {},
-    el("th", { class: "col-fav", text: "★" }),
-    el("th", { class: "col-status", text: "Статус" }),
-    el("th", { class: "col-link", text: "Ссылка" }),
-    el("th", { class: "col-place", text: "Город / район" }),
-    el("th", { class: "col-price" }, el("button", { type: "button", text: "Цена", onClick: () => sortBy("price") })),
-    el("th", { class: "col-rent" }, el("button", { type: "button", text: "Оценка аренды", onClick: () => sortBy("rent") })),
-    el("th", { class: "col-near", text: "Метро" }),
-    el("th", { class: "col-near", text: "Магазин" }),
-    el("th", { class: "col-state", text: "Состояние" }),
-    el("th", { class: "col-energy", text: "Класс" }),
-    el("th", { class: "col-year" }, el("button", { type: "button", text: "Год", onClick: () => sortBy("year") })));
+  const visible = TABLE_COLUMNS.filter((col) => columnVisible(col.id));
+  const head = el("tr", {}, ...visible.map((col) => headerCell(col)));
   const body = el("tbody");
   items.forEach((item) => {
     const row = el("tr", { class: isNew(item) ? "is-new" : "" },
-      el("td", { class: "fav-cell", "data-label": "Избранное" }, starButton(item)),
-      el("td", { "data-label": "Статус" }, statusSelect(item)),
-      el("td", { "data-label": "Ссылка" }, tableLink(item)),
-      el("td", { "data-label": "Город / район", text: item.place || item.city }),
-      el("td", { "data-label": "Цена", text: euro(item.price) }),
-      rentCell(item),
-      nearCell("Метро", item.metro && item.metro.full ? item.metro : item.transit),
-      nearCell("Магазин", item.shop),
-      el("td", { "data-label": "Состояние", text: item.condition || "—" }),
-      el("td", { "data-label": "Энергокласс" }, item.energy
-        ? el("span", { class: `energy ${energyClass(item.energy)}`, text: item.energy })
-        : "—"),
-      el("td", { "data-label": "Год постройки", text: item.year || "—" }));
+      ...visible.map((col) => cellFor(col, item)));
     row.addEventListener("click", (event) => {
       const raw = event.target;
       const target = raw instanceof Element ? raw : raw && raw.parentElement;
@@ -363,7 +540,9 @@ function tableView(items) {
     });
     body.append(row);
   });
-  return el("div", { class: "table-wrap" }, el("table", {}, el("thead", {}, head), body));
+  const wrap = el("div", { class: visible.length > 10 ? "table-wrap wide" : "table-wrap" });
+  wrap.append(el("table", { class: visible.length > 10 ? "table-wide" : "" }, el("thead", {}, head), body));
+  return wrap;
 }
 
 function renderList(items) {
@@ -755,6 +934,7 @@ async function setView(name) {
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.setAttribute("aria-pressed", button.getAttribute("data-view") === name ? "true" : "false");
   });
+  document.getElementById("columns-bar").classList.toggle("hidden", name !== "table");
   const list = document.getElementById("list");
   const map = document.getElementById("map");
   if (name === "map") {
@@ -795,10 +975,12 @@ function bind() {
   document.getElementById("f-park").addEventListener("change", applyControls);
   document.getElementById("f-lift").addEventListener("change", applyControls);
   document.addEventListener("click", (event) => {
-    document.querySelectorAll(".filters details[open]").forEach((details) => {
+    document.querySelectorAll(".filters details[open], .columns-bar details[open]").forEach((details) => {
       if (!details.contains(event.target)) details.open = false;
     });
   });
+  document.getElementById("cols-essential").addEventListener("click", () => setColumns(ESSENTIAL_COLS));
+  document.getElementById("cols-all").addEventListener("click", () => setColumns(ALL_COLS));
   document.getElementById("f-reset").addEventListener("click", () => {
     document.getElementById("q").value = "";
     document.getElementById("f-min").value = "";
@@ -913,6 +1095,7 @@ function start(data) {
     `Оценка аренды — индекс Idealista, октябрь 2026${checked}. Где ставки нет, стоит «низкая точность» и цифра не подставляется.${where}`;
   if (state.shared) document.getElementById("export").classList.add("hidden");
   fillFilters();
+  fillColumnPicker();
   return setView(state.view);
 }
 

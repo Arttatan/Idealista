@@ -330,8 +330,20 @@ main { padding: 8px 28px 48px; max-width: 1280px; margin: 0 auto; }
 .e-F { background: #d63a3a; color: #fff; }
 .e-G { background: #8e1b1b; color: #fff; }
 
+.columns-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  align-items: end;
+  margin: 0 0 12px;
+}
+.columns-bar .multi { flex: 1 1 220px; }
 .table-wrap { width: 100%; overflow: hidden; }
+.table-wrap.wide { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.table-wide { table-layout: auto; min-width: 1100px; }
+table.table-wide th, table.table-wide td { white-space: nowrap; }
+table.table-wide td.rent-cell { white-space: normal; min-width: 140px; }
 th, td { text-align: left; vertical-align: top; padding: 12px 8px; overflow-wrap: anywhere; }
 th { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
 th button {
