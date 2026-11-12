@@ -138,6 +138,7 @@ function filtered() {
   const energies = selectedValues("f-energy");
   const conditions = selectedValues("f-cond");
   const statuses = selectedValues("f-status");
+  const years = selectedValues("f-year");
   const favOnly = document.getElementById("f-fav").checked;
   const park = document.getElementById("f-park").checked;
   const lift = document.getElementById("f-lift").checked;
@@ -153,6 +154,11 @@ function filtered() {
     }
     if (conditions.length && !conditions.includes(item.condition)) return false;
     if (statuses.length && !statuses.includes(item.notes.Статус || "")) return false;
+    if (years.length) {
+      const year = item.year ? String(item.year) : "";
+      const match = years.some((value) => (value === "__empty__" ? !year : year === value));
+      if (!match) return false;
+    }
     if (favOnly && !item.notes["Избранное"]) return false;
     if (park && item.parking !== "Да") return false;
     if (lift && item.lift !== "Да") return false;
@@ -420,6 +426,11 @@ function fillFilters() {
   const energyOptions = [...energies, ...extraEnergy].map((letter) => ({ value: letter, label: letter }));
   if (state.all.some((item) => !item.energy)) energyOptions.push({ value: "__empty__", label: "не указан" });
   fillMulti("f-energy", energyOptions, "Любой");
+  const years = [...new Set(state.all.map((item) => item.year).filter(Boolean).map(String))]
+    .sort((a, b) => Number(b) - Number(a));
+  const yearOptions = years.map((value) => ({ value, label: value }));
+  if (state.all.some((item) => !item.year)) yearOptions.push({ value: "__empty__", label: "не указан" });
+  fillMulti("f-year", yearOptions, "Любой");
 }
 
 function fieldSelect(name, label, values, current, wide) {
@@ -756,6 +767,7 @@ function bind() {
     clearMulti("f-energy", "Любой");
     clearMulti("f-cond", "Любое");
     clearMulti("f-status", "Любой");
+    clearMulti("f-year", "Любой");
     document.getElementById("f-fav").checked = false;
     document.getElementById("f-park").checked = false;
     document.getElementById("f-lift").checked = false;
