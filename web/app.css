@@ -346,13 +346,28 @@ tbody tr { border-top: 1px solid var(--line); cursor: pointer; }
 tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 55%, transparent); }
 td.rent-cell { color: var(--rent); font-weight: 700; }
 td.rent-cell small { display: block; font-weight: 500; color: var(--ink); font-size: 0.82rem; }
-.col-link { width: 11%; }
-.col-place { width: 24%; }
-.col-price { width: 13%; }
-.col-rent { width: 22%; }
-.col-state { width: 14%; }
-.col-energy { width: 8%; }
-.col-year { width: 8%; }
+.col-fav { width: 4%; }
+.col-status { width: 10%; }
+.col-link { width: 7%; }
+.col-place { width: 14%; }
+.col-price { width: 9%; }
+.col-rent { width: 14%; }
+.col-near { width: 8%; }
+.col-state { width: 10%; }
+.col-energy { width: 6%; }
+.col-year { width: 6%; }
+.fav-cell { text-align: center; }
+.near-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table-status {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 8px;
+  font-size: 14px;
+}
+tbody tr.is-new { background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
 
 .map {
   height: min(70vh, 720px);

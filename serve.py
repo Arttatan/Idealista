@@ -13,15 +13,17 @@ from io import BytesIO
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
-from idealista_watch import DATA, LISTINGS_PATH, load_json, merge_saved_fields, render_workbook
+from idealista_watch import DATA, LISTINGS_PATH, haversine, load_json, merge_saved_fields, render_workbook
 from rent_estimate import estimate_listing, load_rates
 
 ROOT = Path(__file__).resolve().parent
 WEB = ROOT / "web"
 NOTES_PATH = DATA / "user_notes.json"
+METRO_PATH = DATA / "metro.json"
 HOST = "127.0.0.1"
 PORT = 8765
 LOCK = threading.Lock()
+_METRO_CACHE: list[dict] | None = None
 
 NOTE_DEFAULTS = {
     "Просмотрено": "Нет",
@@ -91,6 +93,64 @@ def coordinates(row: dict) -> tuple[float | None, float | None]:
     if not (40 <= lat <= 43 and -10 <= lon <= -6):
         return None, None
     return lat, lon
+
+
+def short_distance(text: str) -> str:
+    """Из «пешком, 118 м (Lidl)» оставить коротко «118 м»."""
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    match = re.search(r"(\d+(?:[.,]\d+)?\s?(?:м|км))", raw, re.I)
+    if match:
+        return match.group(1).replace(" ", "\u00a0")
+    if "дальше" in raw.lower():
+        return ">5 км"
+    return raw
+
+
+def access_payload(full: str) -> dict:
+    text = str(full or "").strip()
+    return {"text": short_distance(text) or "—", "full": text}
+
+
+def metro_points() -> list[dict]:
+    global _METRO_CACHE
+    if _METRO_CACHE is not None:
+        return _METRO_CACHE
+    points = load_json(METRO_PATH, [])
+    _METRO_CACHE = [point for point in points if isinstance(point, dict)]
+    return _METRO_CACHE
+
+
+def nearest_metro(lat: float, lon: float) -> dict:
+    best = None
+    name = ""
+    for point in metro_points():
+        try:
+            plat = float(point["lat"])
+            plon = float(point["lon"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        distance = haversine(lat, lon, plat, plon)
+        if distance > 5000:
+            continue
+        if best is None or distance < best:
+            best = distance
+            name = str(point.get("name") or "").strip()
+    if best is None:
+        return {"text": "—", "full": ""}
+    if best <= 800:
+        how = "пешком"
+    elif best <= 2000:
+        how = "короткая поездка"
+    else:
+        how = "на машине"
+    if best < 1000:
+        dist = f"{int(round(best))} м"
+    else:
+        dist = f"{best / 1000:.1f} км".replace(".", ",")
+    full = f"{how}, {dist}" + (f" ({name})" if name else "")
+    return {"text": dist.replace(" ", "\u00a0"), "full": full}
 
 
 def load_notes() -> dict:
@@ -171,6 +231,9 @@ def listing_payload(row: dict, notes_all: dict) -> dict:
         "photo": photo_of(row),
         "lat": lat,
         "lon": lon,
+        "shop": access_payload(str(row.get("Магазины") or "")),
+        "metro": nearest_metro(lat, lon) if lat is not None and lon is not None else {"text": "—", "full": ""},
+        "transit": access_payload(str(row.get("Транспорт") or "")),
         "rent": estimate_listing(row),
         "facts": facts,
         "notes": merge_notes(row, notes_all),

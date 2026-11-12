@@ -301,22 +301,55 @@ function rentCell(item) {
     el("small", { text: rent.accuracy }));
 }
 
+function nearCell(label, info) {
+  const data = info || {};
+  const text = data.text || "—";
+  const cell = el("td", { class: "near-cell", "data-label": label, text });
+  if (data.full) cell.title = data.full;
+  return cell;
+}
+
+function statusSelect(item) {
+  const current = (item.notes && item.notes["Статус"]) || "Новая";
+  const values = [...STATUSES];
+  if (current && !values.includes(current)) values.unshift(current);
+  const select = el("select", {
+    class: "table-status",
+    "aria-label": "Статус",
+    onClick: (event) => event.stopPropagation(),
+    onChange: (event) => {
+      event.stopPropagation();
+      scheduleSave(item.id, { "Статус": event.target.value });
+    },
+  }, ...values.map((value) => el("option", { value, text: value })));
+  select.value = current;
+  return select;
+}
+
 function tableView(items) {
   const head = el("tr", {},
+    el("th", { class: "col-fav", text: "★" }),
+    el("th", { class: "col-status", text: "Статус" }),
     el("th", { class: "col-link", text: "Ссылка" }),
     el("th", { class: "col-place", text: "Город / район" }),
     el("th", { class: "col-price" }, el("button", { type: "button", text: "Цена", onClick: () => sortBy("price") })),
     el("th", { class: "col-rent" }, el("button", { type: "button", text: "Оценка аренды", onClick: () => sortBy("rent") })),
+    el("th", { class: "col-near", text: "Метро" }),
+    el("th", { class: "col-near", text: "Магазин" }),
     el("th", { class: "col-state", text: "Состояние" }),
-    el("th", { class: "col-energy", text: "Энергокласс" }),
+    el("th", { class: "col-energy", text: "Класс" }),
     el("th", { class: "col-year" }, el("button", { type: "button", text: "Год", onClick: () => sortBy("year") })));
   const body = el("tbody");
   items.forEach((item) => {
-    const row = el("tr", {},
+    const row = el("tr", { class: isNew(item) ? "is-new" : "" },
+      el("td", { class: "fav-cell", "data-label": "Избранное" }, starButton(item)),
+      el("td", { "data-label": "Статус" }, statusSelect(item)),
       el("td", { "data-label": "Ссылка" }, tableLink(item)),
       el("td", { "data-label": "Город / район", text: item.place || item.city }),
       el("td", { "data-label": "Цена", text: euro(item.price) }),
       rentCell(item),
+      nearCell("Метро", item.metro && item.metro.full ? item.metro : item.transit),
+      nearCell("Магазин", item.shop),
       el("td", { "data-label": "Состояние", text: item.condition || "—" }),
       el("td", { "data-label": "Энергокласс" }, item.energy
         ? el("span", { class: `energy ${energyClass(item.energy)}`, text: item.energy })
@@ -325,7 +358,7 @@ function tableView(items) {
     row.addEventListener("click", (event) => {
       const raw = event.target;
       const target = raw instanceof Element ? raw : raw && raw.parentElement;
-      if (target && target.closest("a, button")) return;
+      if (target && target.closest("a, button, select, label")) return;
       openPanel(item.id);
     });
     body.append(row);

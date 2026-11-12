@@ -1,0 +1,427 @@
+[
+  {
+    "lat": 41.1488,
+    "lon": -8.598349,
+    "name": "24 de Agosto"
+  },
+  {
+    "lat": 41.18557,
+    "lon": -8.545892,
+    "name": "Baguim"
+  },
+  {
+    "lat": 41.14978,
+    "lon": -8.605901,
+    "name": "Bolhão"
+  },
+  {
+    "lat": 41.18391,
+    "lon": -8.691469,
+    "name": "Brito Capelo"
+  },
+  {
+    "lat": 41.1807,
+    "lon": -8.681227,
+    "name": "Câmara Matosinhos"
+  },
+  {
+    "lat": 41.18345,
+    "lon": -8.553955,
+    "name": "Campainha"
+  },
+  {
+    "lat": 41.15054,
+    "lon": -8.586245,
+    "name": "Campanhã"
+  },
+  {
+    "lat": 41.15858,
+    "lon": -8.622246,
+    "name": "Carolina Michaelis"
+  },
+  {
+    "lat": 41.17982,
+    "lon": -8.543604,
+    "name": "Carreira"
+  },
+  {
+    "lat": 41.16058,
+    "lon": -8.628282,
+    "name": "Casa da Música"
+  },
+  {
+    "lat": 41.16571,
+    "lon": -8.578639,
+    "name": "Contumil"
+  },
+  {
+    "lat": 41.16072,
+    "lon": -8.582416,
+    "name": "Estádio do Dragão"
+  },
+  {
+    "lat": 41.18577,
+    "lon": -8.661189,
+    "name": "Estádio do Mar"
+  },
+  {
+    "lat": 41.1713,
+    "lon": -8.542938,
+    "name": "Fânzeres"
+  },
+  {
+    "lat": 41.16555,
+    "lon": -8.636347,
+    "name": "Francos"
+  },
+  {
+    "lat": 41.1467,
+    "lon": -8.592978,
+    "name": "Heroísmo"
+  },
+  {
+    "lat": 41.15711,
+    "lon": -8.616723,
+    "name": "Lapa"
+  },
+  {
+    "lat": 41.17576,
+    "lon": -8.56212,
+    "name": "Levada"
+  },
+  {
+    "lat": 41.18017,
+    "lon": -8.688553,
+    "name": "Matosinhos Sul"
+  },
+  {
+    "lat": 41.18748,
+    "lon": -8.693391,
+    "name": "Mercado"
+  },
+  {
+    "lat": 41.17077,
+    "lon": -8.577317,
+    "name": "Nasoni"
+  },
+  {
+    "lat": 41.17412,
+    "lon": -8.573534,
+    "name": "Nau Vitória"
+  },
+  {
+    "lat": 41.17911,
+    "lon": -8.673546,
+    "name": "Parque de Real"
+  },
+  {
+    "lat": 41.18038,
+    "lon": -8.666232,
+    "name": "Pedro Hispano"
+  },
+  {
+    "lat": 41.17296,
+    "lon": -8.641766,
+    "name": "Ramalde"
+  },
+  {
+    "lat": 41.17942,
+    "lon": -8.560264,
+    "name": "Rio Tinto"
+  },
+  {
+    "lat": 41.18821,
+    "lon": -8.685123,
+    "name": "Senhor de Matosinhos"
+  },
+  {
+    "lat": 41.1881,
+    "lon": -8.654466,
+    "name": "Senhora da Hora"
+  },
+  {
+    "lat": 41.18242,
+    "lon": -8.652149,
+    "name": "NorteShopping I Sete Bicas"
+  },
+  {
+    "lat": 41.15228,
+    "lon": -8.609299,
+    "name": "Trindade"
+  },
+  {
+    "lat": 41.19024,
+    "lon": -8.661037,
+    "name": "Vasco da Gama"
+  },
+  {
+    "lat": 41.17516,
+    "lon": -8.541962,
+    "name": "Venda Nova"
+  },
+  {
+    "lat": 41.17725,
+    "lon": -8.646498,
+    "name": "Viso"
+  },
+  {
+    "lat": 41.36464,
+    "lon": -8.745225,
+    "name": "Alto de Pega"
+  },
+  {
+    "lat": 41.3404,
+    "lon": -8.725555,
+    "name": "Árvore"
+  },
+  {
+    "lat": 41.34597,
+    "lon": -8.728122,
+    "name": "Azurara"
+  },
+  {
+    "lat": 41.23301,
+    "lon": -8.656593,
+    "name": "Crestins"
+  },
+  {
+    "lat": 41.20029,
+    "lon": -8.655559,
+    "name": "Custóias"
+  },
+  {
+    "lat": 41.32122,
+    "lon": -8.718681,
+    "name": "Espaço Natureza"
+  },
+  {
+    "lat": 41.21607,
+    "lon": -8.654541,
+    "name": "Esposade"
+  },
+  {
+    "lat": 41.19416,
+    "lon": -8.655771,
+    "name": "Fonte do Cuco"
+  },
+  {
+    "lat": 41.25495,
+    "lon": -8.668018,
+    "name": "Lidador"
+  },
+  {
+    "lat": 41.31508,
+    "lon": -8.714209,
+    "name": "Mindelo"
+  },
+  {
+    "lat": 41.29368,
+    "lon": -8.699238,
+    "name": "Modivas Centro"
+  },
+  {
+    "lat": 41.30049,
+    "lon": -8.704004,
+    "name": "VC Fashion Outlet I Modivas"
+  },
+  {
+    "lat": 41.28525,
+    "lon": -8.693703,
+    "name": "Modivas Sul"
+  },
+  {
+    "lat": 41.24623,
+    "lon": -8.661807,
+    "name": "Pedras Rubras"
+  },
+  {
+    "lat": 41.36895,
+    "lon": -8.749558,
+    "name": "Portas Fronhas"
+  },
+  {
+    "lat": 41.37812,
+    "lon": -8.758081,
+    "name": "Póvoa de Varzim"
+  },
+  {
+    "lat": 41.35398,
+    "lon": -8.735826,
+    "name": "Santa Clara"
+  },
+  {
+    "lat": 41.37346,
+    "lon": -8.754122,
+    "name": "São Brás"
+  },
+  {
+    "lat": 41.33422,
+    "lon": -8.720721,
+    "name": "Varziela"
+  },
+  {
+    "lat": 41.23825,
+    "lon": -8.658212,
+    "name": "Verdes"
+  },
+  {
+    "lat": 41.3591,
+    "lon": -8.73987,
+    "name": "Vila do Conde"
+  },
+  {
+    "lat": 41.2703,
+    "lon": -8.679515,
+    "name": "Vilar do Pinheiro"
+  },
+  {
+    "lat": 41.21691,
+    "lon": -8.640978,
+    "name": "Araújo"
+  },
+  {
+    "lat": 41.2007,
+    "lon": -8.649703,
+    "name": "Cândido dos Reis"
+  },
+  {
+    "lat": 41.26275,
+    "lon": -8.616986,
+    "name": "Castêlo da Maia"
+  },
+  {
+    "lat": 41.22234,
+    "lon": -8.638996,
+    "name": "Custió"
+  },
+  {
+    "lat": 41.23463,
+    "lon": -8.623937,
+    "name": "Fórum Maia"
+  },
+  {
+    "lat": 41.26891,
+    "lon": -8.615387,
+    "name": "ISMAI"
+  },
+  {
+    "lat": 41.25358,
+    "lon": -8.628308,
+    "name": "Mandim"
+  },
+  {
+    "lat": 41.22902,
+    "lon": -8.626897,
+    "name": "Parque Maia"
+  },
+  {
+    "lat": 41.20823,
+    "lon": -8.647122,
+    "name": "Pias"
+  },
+  {
+    "lat": 41.24397,
+    "lon": -8.628555,
+    "name": "Zona Indústrial"
+  },
+  {
+    "lat": 41.14858,
+    "lon": -8.610945,
+    "name": "Aliados"
+  },
+  {
+    "lat": 41.12967,
+    "lon": -8.606116,
+    "name": "Câmara Gaia"
+  },
+  {
+    "lat": 41.1653,
+    "lon": -8.598464,
+    "name": "Combatentes"
+  },
+  {
+    "lat": 41.11966,
+    "lon": -8.60623,
+    "name": "D. João II"
+  },
+  {
+    "lat": 41.15722,
+    "lon": -8.609141,
+    "name": "Faria Guimarães"
+  },
+  {
+    "lat": 41.13387,
+    "lon": -8.607489,
+    "name": "General Torres"
+  },
+  {
+    "lat": 41.18125,
+    "lon": -8.604521,
+    "name": "IPO"
+  },
+  {
+    "lat": 41.13764,
+    "lon": -8.608646,
+    "name": "Jardim do Morro"
+  },
+  {
+    "lat": 41.12606,
+    "lon": -8.605627,
+    "name": "João de Deus"
+  },
+  {
+    "lat": 41.16112,
+    "lon": -8.604272,
+    "name": "Marquês"
+  },
+  {
+    "lat": 41.17425,
+    "lon": -8.603607,
+    "name": "Pólo Universitário"
+  },
+  {
+    "lat": 41.16969,
+    "lon": -8.598744,
+    "name": "Salgueiros"
+  },
+  {
+    "lat": 41.14494,
+    "lon": -8.610815,
+    "name": "São Bento"
+  },
+  {
+    "lat": 41.23708,
+    "lon": -8.669442,
+    "name": "Aeroporto"
+  },
+  {
+    "lat": 41.23752,
+    "lon": -8.665208,
+    "name": "Botica"
+  },
+  {
+    "lat": 41.18326,
+    "lon": -8.60224,
+    "name": "Hospital São João"
+  },
+  {
+    "lat": 41.11555,
+    "lon": -8.606555,
+    "name": "Santo Ovídio"
+  },
+  {
+    "lat": 41.10576,
+    "lon": -8.591075,
+    "name": "Hospital Santos Silva"
+  },
+  {
+    "lat": 41.11066,
+    "lon": -8.599958,
+    "name": "Manuel Leão"
+  },
+  {
+    "lat": 41.09872,
+    "lon": -8.588716,
+    "name": "Vila d'Este"
+  }
+]
