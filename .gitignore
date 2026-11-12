@@ -1,0 +1,10 @@
+__pycache__/
+*.xlsx
+data/listings.json
+data/user_notes.json
+data/geocode_cache.json
+data/amenities.json
+data/details_inbox.jsonl
+data/seen_ids.json
+data/update.log
+data/last_digest.txt

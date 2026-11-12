@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Квартиры · Порту и Брага</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f6f6a'/%3E%3Cpath fill='white' d='M7 15.2 16 8l9 7.2V25a1 1 0 0 1-1 1h-5.2v-6.2h-5.6V26H8a1 1 0 0 1-1-1z'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <p class="eyebrow">Idealista · покупка</p>
+      <h1>Квартиры</h1>
+      <p class="sub" id="count">Загрузка…</p>
+    </div>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Город, район, заметка" autocomplete="off" aria-label="Поиск">
+      <div class="segment" role="group" aria-label="Вид">
+        <button type="button" data-view="cards" aria-pressed="true">Карточки</button>
+        <button type="button" data-view="table" aria-pressed="false">Таблица</button>
+        <button type="button" data-view="map" aria-pressed="false">Карта</button>
+      </div>
+      <label class="sort-label">Сортировка
+        <span class="sort-row">
+          <select id="sort" aria-label="Сортировка">
+            <option value="added">Дата добавления</option>
+            <option value="price">Цена</option>
+            <option value="rent">Оценка аренды</option>
+            <option value="yield">Доходность</option>
+            <option value="year">Год постройки</option>
+          </select>
+          <button type="button" id="sort-dir" aria-label="По убыванию">↓</button>
+        </span>
+      </label>
+      <button type="button" id="theme" class="ghost">Тёмная</button>
+      <a class="ghost" id="export" href="api/export.xlsx">Excel</a>
+    </div>
+  </header>
+  <main>
+    <section class="filters" aria-label="Фильтры">
+      <label>Город<select id="f-city"></select></label>
+      <label>Цена от, €<input id="f-min" inputmode="numeric" placeholder="0"></label>
+      <label>Цена до, €<input id="f-max" inputmode="numeric" placeholder="300 000"></label>
+      <label>Энергокласс<select id="f-energy"></select></label>
+      <label>Состояние<select id="f-cond"></select></label>
+      <label>Статус<select id="f-status"></select></label>
+      <label class="check"><input type="checkbox" id="f-park"> Только с парковкой</label>
+      <label class="check"><input type="checkbox" id="f-lift"> Только с лифтом</label>
+      <button type="button" id="f-reset" class="ghost">Сбросить</button>
+    </section>
+    <p class="source" id="source"></p>
+    <div id="list"></div>
+    <p id="map-error" class="empty hidden"></p>
+    <div id="map" class="map hidden" role="region" aria-label="Карта объявлений"></div>
+    <p id="empty" class="empty hidden">Ничего не нашлось. Сбросьте фильтры или поиск.</p>
+  </main>
+  <div id="backdrop" class="backdrop hidden"></div>
+  <aside id="panel" class="panel hidden" aria-hidden="true" aria-label="Карточка объявления"></aside>
+  <div id="lock" class="lock hidden">
+    <form id="lock-form" class="lock-card">
+      <p class="eyebrow">Idealista · покупка</p>
+      <h2>Квартиры</h2>
+      <p>Введите общий пароль. Его можно переслать жене, в сайт он не записан.</p>
+      <input id="lock-pass" type="password" autocomplete="current-password" placeholder="Пароль" aria-label="Пароль" required>
+      <button type="submit">Открыть</button>
+      <p id="lock-error" class="lock-error" role="alert"></p>
+    </form>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

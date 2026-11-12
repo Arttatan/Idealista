@@ -1,0 +1,543 @@
+{
+  "_readme": "Ставки долгосрочной аренды, €/м². Правьте eur_m2 руками — сайт и Excel перечитают файл. eur_m2: null значит «ставки нет, цифру не подставлять». confidence: высокая | средняя | низкая. match в areas — кусок района или города, без учёта акцентов.",
+  "source": "Индекс Idealista: средняя цена объявлений долгосрочной аренды, €/м². Это не медиана закрытых договоров. Живой поиск раздела arrendar автоматический сбор не отдал, поэтому взяты опубликованные отчёты, а не выдуманные цифры.",
+  "source_url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/report/",
+  "checked": "2026-11-12",
+  "period": "2026-10",
+  "municipalities": {
+    "Porto": {
+      "eur_m2": 18.3,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/"
+    },
+    "Vila Nova de Gaia": {
+      "eur_m2": 13.5,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/"
+    },
+    "Gondomar": {
+      "eur_m2": 11.1,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/gondomar/"
+    },
+    "Matosinhos": {
+      "eur_m2": 15.3,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/"
+    },
+    "Maia": {
+      "eur_m2": 11.8,
+      "as_of": "2026-09",
+      "confidence": "низкая",
+      "note": "За октябрь 2026 Idealista ставку Maia не опубликовал. Взята последняя, сентябрь 2026.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/maia/"
+    },
+    "Vila do Conde": {
+      "eur_m2": 11.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/"
+    },
+    "Póvoa de Varzim": {
+      "eur_m2": 11.8,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/"
+    },
+    "Valongo": {
+      "eur_m2": 10.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/"
+    },
+    "Ermesinde": {
+      "eur_m2": 10.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Valongo (Эрмезинде входит в муниципалитет Valongo)",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/"
+    },
+    "Paredes": {
+      "eur_m2": 8.3,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/"
+    },
+    "São Mamede de Infesta": {
+      "eur_m2": 14.9,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São Mamede de Infesta e Senhora da Hora (Matosinhos)",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/"
+    },
+    "Braga": {
+      "eur_m2": 10.6,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/"
+    },
+    "Guimarães": {
+      "eur_m2": 10.3,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/guimaraes/"
+    },
+    "Barcelos": {
+      "eur_m2": 8.5,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/"
+    },
+    "Vila Nova de Famalicão": {
+      "eur_m2": 8.8,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/"
+    },
+    "Amarante": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/amarante/"
+    },
+    "Amares": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/amares/"
+    },
+    "Lousada": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/lousada/"
+    },
+    "Paços de Ferreira": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/pacos-de-ferreira/"
+    },
+    "Penafiel": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/penafiel/"
+    },
+    "Santo Tirso": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/santo-tirso/"
+    },
+    "Trofa": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/trofa/"
+    },
+    "Vila Verde": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/vila-verde/"
+    },
+    "Vizela": {
+      "eur_m2": null,
+      "as_of": null,
+      "confidence": "низкая",
+      "note": "Idealista не публикует индекс аренды: серия пустая.",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/vizela/"
+    }
+  },
+  "areas": [
+    {
+      "match": [
+        "Paranhos"
+      ],
+      "eur_m2": 15.8,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Paranhos, Porto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Bonfim"
+      ],
+      "eur_m2": 20.5,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Bonfim, Porto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Campanhã"
+      ],
+      "eur_m2": 16.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Campanhã, Porto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Ramalde"
+      ],
+      "eur_m2": 13.7,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Ramalde, Porto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Aldoar",
+        "Foz do Douro",
+        "Nevogilde"
+      ],
+      "eur_m2": 16.2,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Aldoar - Foz do Douro - Nevogilde",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Cedofeita",
+        "Santo Ildefonso",
+        "Miragaia",
+        "São Nicolau"
+      ],
+      "eur_m2": 21.5,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Centro histórico, Porto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Lordelo do Ouro",
+        "Massarelos"
+      ],
+      "eur_m2": 15.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Lordelo do Ouro e Massarelos",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/porto/",
+      "cities": [
+        "Porto"
+      ]
+    },
+    {
+      "match": [
+        "Canidelo"
+      ],
+      "eur_m2": 14.9,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Canidelo, Vila Nova de Gaia",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Gulpilhares",
+        "Valadares"
+      ],
+      "eur_m2": 10.1,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Gulpilhares e Valadares",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Madalena"
+      ],
+      "eur_m2": 12.8,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Madalena, Vila Nova de Gaia",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Mafamude",
+        "Vilar do Paraíso"
+      ],
+      "eur_m2": 13.1,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Mafamude e Vilar do Paraíso",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Oliveira do Douro"
+      ],
+      "eur_m2": 13.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Oliveira do Douro, Vila Nova de Gaia",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Santa Marinha",
+        "Afurada"
+      ],
+      "eur_m2": 15.1,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Santa Marinha e São Pedro da Afurada",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/vila-nova-de-gaia/",
+      "cities": [
+        "Vila Nova de Gaia"
+      ]
+    },
+    {
+      "match": [
+        "Rio Tinto"
+      ],
+      "eur_m2": 11.6,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Rio Tinto, Gondomar",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/gondomar/",
+      "cities": [
+        "Gondomar"
+      ]
+    },
+    {
+      "match": [
+        "São Cosme",
+        "Valbom",
+        "Jovim"
+      ],
+      "eur_m2": 10.4,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São Cosme - Valbom - Jovim",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/gondomar/",
+      "cities": [
+        "Gondomar"
+      ]
+    },
+    {
+      "match": [
+        "Leça da Palmeira"
+      ],
+      "eur_m2": 16.5,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Matosinhos e Leça da Palmeira",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/",
+      "cities": [
+        "Matosinhos",
+        "São Mamede de Infesta"
+      ]
+    },
+    {
+      "match": [
+        "Custóias",
+        "Leça do Balio",
+        "Guifões"
+      ],
+      "eur_m2": 11.4,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Custóias - Leça do Balio - Guifões",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/",
+      "cities": [
+        "Matosinhos",
+        "São Mamede de Infesta"
+      ]
+    },
+    {
+      "match": [
+        "Perafita",
+        "Lavra",
+        "Santa Cruz do Bispo"
+      ],
+      "eur_m2": 12.1,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Perafita - Lavra - Santa Cruz do Bispo",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/",
+      "cities": [
+        "Matosinhos",
+        "São Mamede de Infesta"
+      ]
+    },
+    {
+      "match": [
+        "São Mamede de Infesta",
+        "Senhora da Hora"
+      ],
+      "eur_m2": 14.9,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São Mamede de Infesta e Senhora da Hora",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/porto-provincias/matosinhos/",
+      "cities": [
+        "Matosinhos",
+        "São Mamede de Infesta"
+      ]
+    },
+    {
+      "match": [
+        "São Victor"
+      ],
+      "eur_m2": 10.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São Victor, Braga",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "São Vicente"
+      ],
+      "eur_m2": 10.8,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São Vicente, Braga",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "Maximinos",
+        "Cividade"
+      ],
+      "eur_m2": 11.2,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Maximinos - Sé - Cividade, Braga",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "São Lázaro",
+        "São João do Souto"
+      ],
+      "eur_m2": 12.9,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "São José de São Lázaro e São João do Souto",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "Gualtar"
+      ],
+      "eur_m2": 11.2,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Gualtar, Braga",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "Nogueira",
+        "Fraião",
+        "Lamaçães"
+      ],
+      "eur_m2": 9.3,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Nogueira - Fraião - Lamaçães",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "Nogueiró",
+        "Tenões"
+      ],
+      "eur_m2": 9.7,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Nogueiró e Tenões",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/braga/",
+      "cities": [
+        "Braga"
+      ]
+    },
+    {
+      "match": [
+        "Azurém"
+      ],
+      "eur_m2": 12.0,
+      "as_of": "2026-10",
+      "confidence": "средняя",
+      "label": "Azurém, Guimarães",
+      "url": "https://www.idealista.pt/media/relatorios-preco-habitacao/arrendamento/braga-provincias/guimaraes/",
+      "cities": [
+        "Guimarães"
+      ]
+    }
+  ]
+}
