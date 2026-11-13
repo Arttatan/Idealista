@@ -790,11 +790,13 @@ function rememberBrowserNote(id, patch) {
   localStorage.setItem("idealista-browser-notes", JSON.stringify(saved));
 }
 
-function applyNotesMap(listings, notesMap) {
+function applyNotesMap(listings, notesMap, stampMissing = false) {
   listings.forEach((item) => {
     if (!notesMap[item.id]) return;
     const note = { ...notesMap[item.id] };
-    if (!note._ts) note._ts = Date.now();
+    // Локальные правки без метки времени помечаем как свежие один раз при загрузке.
+    // Обычным пометкам из базы время 0, чтобы они не затирали чужие изменения.
+    if (!note._ts) note._ts = stampMissing ? Date.now() : 0;
     item.notes = { ...item.notes, ...note };
   });
 }
@@ -802,7 +804,9 @@ function applyNotesMap(listings, notesMap) {
 function notesSnapshot() {
   const out = {};
   state.all.forEach((item) => {
-    out[item.id] = { ...item.notes, _ts: Number(item.notes._ts) || Date.now() };
+    // Нельзя подставлять Date.now() здесь: иначе каждый push «обновляет» все квартиры
+    // и затирает более старые, но реальные правки жены.
+    out[item.id] = { ...item.notes, _ts: Number(item.notes._ts) || 0 };
   });
   return out;
 }
@@ -818,6 +822,7 @@ function mergeNoteRecords(local, remote) {
     }
     const localTs = Number(current._ts) || 0;
     const remoteTs = Number(remoteNote._ts) || 0;
+    // Побеждает запись с большим _ts. При равенстве оставляем remote поверх local.
     out[id] = remoteTs >= localTs ? { ...current, ...remoteNote } : { ...remoteNote, ...current };
   });
   return out;
@@ -977,27 +982,24 @@ function scheduleSharedPush() {
 
 function startSharedPolling() {
   clearInterval(state.syncTimer);
-  state.syncTimer = setInterval(async () => {
-    if (document.hidden || state.syncBusy) return;
+  const refreshFromCloud = async () => {
+    if (!state.sync || state.syncBusy) return;
     const before = JSON.stringify(notesSnapshot());
     const ok = await pullSharedNotes();
     if (!ok) return;
-    const after = JSON.stringify(notesSnapshot());
-    if (before !== after) {
-      const y = window.scrollY;
-      applyControls();
-      window.scrollTo(0, y);
-    }
-  }, 8000);
-  document.addEventListener("visibilitychange", async () => {
-    if (document.hidden || !state.sync) return;
-    const before = JSON.stringify(notesSnapshot());
-    await pullSharedNotes();
     if (before !== JSON.stringify(notesSnapshot())) {
       const y = window.scrollY;
       applyControls();
       window.scrollTo(0, y);
+      setSaveState("Обновлено с другого устройства");
     }
+  };
+  state.syncTimer = setInterval(() => {
+    if (document.hidden) return;
+    refreshFromCloud();
+  }, 5000);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshFromCloud();
   });
 }
 
@@ -1311,7 +1313,8 @@ async function openShared() {
 async function start(data) {
   state.all = data.listings || [];
   if (state.shared) {
-    applyNotesMap(state.all, browserNotes());
+    // Сначала подтягиваем то, что уже было в этом браузере (в т.ч. правки жены).
+    applyNotesMap(state.all, browserNotes(), true);
     if (state.sync) {
       try {
         await pullSharedNotes();
