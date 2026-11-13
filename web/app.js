@@ -784,46 +784,100 @@ function browserNotes() {
   }
 }
 
+const NOTE_FIELDS = [
+  "Статус", "Избранное", "Приоритет", "Просмотрено", "Запланирован визит",
+  "Дата визита", "Телефон", "Заметки", "Плюсы", "Минусы", "Причина отказа",
+];
+
+function fieldTs(note, field) {
+  if (!note || typeof note !== "object") return 0;
+  return Number(note[`_ts_${field}`] || note._ts || 0);
+}
+
+function stampNotePatch(patch) {
+  const now = Date.now();
+  const stamped = { ...patch, _ts: now };
+  Object.keys(patch).forEach((key) => {
+    if (NOTE_FIELDS.includes(key)) stamped[`_ts_${key}`] = now;
+  });
+  return stamped;
+}
+
 function rememberBrowserNote(id, patch) {
   const saved = browserNotes();
-  saved[id] = { ...(saved[id] || {}), ...patch, _ts: Date.now() };
+  saved[id] = { ...(saved[id] || {}), ...patch };
   localStorage.setItem("idealista-browser-notes", JSON.stringify(saved));
 }
 
-function applyNotesMap(listings, notesMap, stampMissing = false) {
+function applyNotesMap(listings, notesMap) {
   listings.forEach((item) => {
     if (!notesMap[item.id]) return;
-    const note = { ...notesMap[item.id] };
-    // Локальные правки без метки времени помечаем как свежие один раз при загрузке.
-    // Обычным пометкам из базы время 0, чтобы они не затирали чужие изменения.
-    if (!note._ts) note._ts = stampMissing ? Date.now() : 0;
-    item.notes = { ...item.notes, ...note };
+    item.notes = { ...item.notes, ...notesMap[item.id] };
   });
 }
 
 function notesSnapshot() {
   const out = {};
   state.all.forEach((item) => {
-    // Нельзя подставлять Date.now() здесь: иначе каждый push «обновляет» все квартиры
-    // и затирает более старые, но реальные правки жены.
-    out[item.id] = { ...item.notes, _ts: Number(item.notes._ts) || 0 };
+    out[item.id] = { ...item.notes };
   });
   return out;
 }
 
-function mergeNoteRecords(local, remote) {
-  const out = { ...local };
-  Object.entries(remote || {}).forEach(([id, remoteNote]) => {
-    if (!remoteNote || typeof remoteNote !== "object") return;
-    const current = out[id];
-    if (!current) {
-      out[id] = { ...remoteNote };
-      return;
+function mergeOneNote(left, right) {
+  const a = left && typeof left === "object" ? left : {};
+  const b = right && typeof right === "object" ? right : {};
+  const merged = { ...a, ...b };
+  NOTE_FIELDS.forEach((field) => {
+    const aTs = fieldTs(a, field);
+    const bTs = fieldTs(b, field);
+    if (bTs > aTs) {
+      if (field in b) merged[field] = b[field];
+      if (b[`_ts_${field}`] != null) merged[`_ts_${field}`] = b[`_ts_${field}`];
+      else if (b._ts) merged[`_ts_${field}`] = b._ts;
+    } else if (aTs > bTs) {
+      if (field in a) merged[field] = a[field];
+      if (a[`_ts_${field}`] != null) merged[`_ts_${field}`] = a[`_ts_${field}`];
+      else if (a._ts) merged[`_ts_${field}`] = a._ts;
+    } else if (bTs === aTs && bTs > 0) {
+      // одинаковое время: не даём «Новая» затереть осмысленный статус
+      if (field === "Статус") {
+        const aStatus = a.Статус || "Новая";
+        const bStatus = b.Статус || "Новая";
+        if (aStatus !== "Новая" && bStatus === "Новая") merged.Статус = aStatus;
+        else if (bStatus !== "Новая" && aStatus === "Новая") merged.Статус = bStatus;
+        else if (field in b) merged.Статус = bStatus;
+      } else if (field === "Избранное") {
+        merged.Избранное = Boolean(a.Избранное) || Boolean(b.Избранное);
+      } else if (field in b) {
+        const aVal = a[field];
+        const bVal = b[field];
+        merged[field] = (bVal != null && bVal !== "") ? bVal : aVal;
+      }
+    } else {
+      // оба без метки: предпочитаем непустое / не «Новая»
+      if (field === "Статус") {
+        const aStatus = a.Статус || "Новая";
+        const bStatus = b.Статус || "Новая";
+        merged.Статус = aStatus !== "Новая" ? aStatus : bStatus;
+      } else if (field === "Избранное") {
+        merged.Избранное = Boolean(a.Избранное) || Boolean(b.Избранное);
+      } else {
+        const aVal = a[field];
+        const bVal = b[field];
+        merged[field] = (aVal != null && aVal !== "") ? aVal : bVal;
+      }
     }
-    const localTs = Number(current._ts) || 0;
-    const remoteTs = Number(remoteNote._ts) || 0;
-    // Побеждает запись с большим _ts. При равенстве оставляем remote поверх local.
-    out[id] = remoteTs >= localTs ? { ...current, ...remoteNote } : { ...remoteNote, ...current };
+  });
+  merged._ts = Math.max(Number(a._ts) || 0, Number(b._ts) || 0, ...NOTE_FIELDS.map((field) => fieldTs(merged, field)));
+  return merged;
+}
+
+function mergeNoteRecords(local, remote) {
+  const out = {};
+  const ids = new Set([...Object.keys(local || {}), ...Object.keys(remote || {})]);
+  ids.forEach((id) => {
+    out[id] = mergeOneNote(local[id], remote[id]);
   });
   return out;
 }
@@ -1005,7 +1059,7 @@ function startSharedPolling() {
 
 async function commit(id, patch) {
   const item = byId(id);
-  const stamped = { ...patch, _ts: Date.now() };
+  const stamped = stampNotePatch(patch);
   if (item) Object.assign(item.notes, stamped);
   if (state.shared) {
     rememberBrowserNote(id, stamped);
@@ -1314,11 +1368,11 @@ async function start(data) {
   state.all = data.listings || [];
   if (state.shared) {
     // Сначала подтягиваем то, что уже было в этом браузере (в т.ч. правки жены).
-    applyNotesMap(state.all, browserNotes(), true);
+    applyNotesMap(state.all, browserNotes());
     if (state.sync) {
       try {
+        // Только читаем облако при входе. Пишем лишь после реального изменения пометки.
         await pullSharedNotes();
-        await pushSharedNotes();
         startSharedPolling();
       } catch (error) {
         /* вход важнее синхронизации: сайт должен открыться даже если gist недоступен */
