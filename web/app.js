@@ -51,6 +51,11 @@ const state = {
   tiles: null,
   shared: false,
   columns: loadColumns(),
+  password: "",
+  sync: null,
+  syncBusy: false,
+  syncTimer: null,
+  pushTimer: null,
 };
 
 function loadColumns() {
@@ -781,28 +786,238 @@ function browserNotes() {
 
 function rememberBrowserNote(id, patch) {
   const saved = browserNotes();
-  saved[id] = { ...(saved[id] || {}), ...patch };
+  saved[id] = { ...(saved[id] || {}), ...patch, _ts: Date.now() };
   localStorage.setItem("idealista-browser-notes", JSON.stringify(saved));
 }
 
-function applyBrowserNotes(listings) {
-  const saved = browserNotes();
+function applyNotesMap(listings, notesMap) {
   listings.forEach((item) => {
-    if (saved[item.id]) item.notes = { ...item.notes, ...saved[item.id] };
+    if (!notesMap[item.id]) return;
+    const note = { ...notesMap[item.id] };
+    if (!note._ts) note._ts = Date.now();
+    item.notes = { ...item.notes, ...note };
+  });
+}
+
+function notesSnapshot() {
+  const out = {};
+  state.all.forEach((item) => {
+    out[item.id] = { ...item.notes, _ts: Number(item.notes._ts) || Date.now() };
+  });
+  return out;
+}
+
+function mergeNoteRecords(local, remote) {
+  const out = { ...local };
+  Object.entries(remote || {}).forEach(([id, remoteNote]) => {
+    if (!remoteNote || typeof remoteNote !== "object") return;
+    const current = out[id];
+    if (!current) {
+      out[id] = { ...remoteNote };
+      return;
+    }
+    const localTs = Number(current._ts) || 0;
+    const remoteTs = Number(remoteNote._ts) || 0;
+    out[id] = remoteTs >= localTs ? { ...current, ...remoteNote } : { ...remoteNote, ...current };
+  });
+  return out;
+}
+
+function b64ToBytes(text) {
+  return Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
+}
+
+async function deriveKey(password, salt, iterations) {
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"],
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+    baseKey,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+async function decryptBundle(password, bundle) {
+  const salt = b64ToBytes(bundle.salt);
+  const iv = b64ToBytes(bundle.iv);
+  const packed = b64ToBytes(bundle.data);
+  const key = await deriveKey(password, salt, bundle.iter || 250000);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, packed);
+  return new TextDecoder().decode(plain);
+}
+
+async function encryptBundle(password, plainText) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt, 250000);
+  const packed = new Uint8Array(await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    new TextEncoder().encode(plainText),
+  ));
+  const toB64 = (bytes) => {
+    let out = "";
+    bytes.forEach((value) => {
+      out += String.fromCharCode(value);
+    });
+    return btoa(out);
+  };
+  return {
+    v: 1,
+    iter: 250000,
+    salt: toB64(salt),
+    iv: toB64(iv),
+    data: toB64(packed),
+  };
+}
+
+async function unlockSync(password, vault) {
+  if (!vault.sync || !vault.sync.gistId || !vault.sync.token) return null;
+  const token = await decryptBundle(password, vault.sync.token);
+  return {
+    gistId: vault.sync.gistId,
+    fileName: vault.sync.fileName || "notes.vault.json",
+    token: token.trim(),
+  };
+}
+
+async function gistGet() {
+  const response = await fetch(`https://api.github.com/gists/${state.sync.gistId}`, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${state.sync.token}`,
+    },
+  });
+  if (!response.ok) throw new Error("gist get");
+  return response.json();
+}
+
+async function pullSharedNotes() {
+  if (!state.sync || state.syncBusy) return false;
+  state.syncBusy = true;
+  try {
+    const gist = await gistGet();
+    const file = gist.files && gist.files[state.sync.fileName];
+    if (!file || !file.content) return false;
+    const bundle = JSON.parse(file.content);
+    const payload = JSON.parse(await decryptBundle(state.password, bundle));
+    const remote = payload.notes || {};
+    const merged = mergeNoteRecords(notesSnapshot(), remote);
+    applyNotesMap(state.all, merged);
+    localStorage.setItem("idealista-browser-notes", JSON.stringify(merged));
+    return true;
+  } catch (error) {
+    return false;
+  } finally {
+    state.syncBusy = false;
+  }
+}
+
+async function pushSharedNotes() {
+  if (!state.sync || state.syncBusy) return false;
+  state.syncBusy = true;
+  try {
+    const gist = await gistGet();
+    const file = gist.files && gist.files[state.sync.fileName];
+    let remote = {};
+    if (file && file.content) {
+      try {
+        const bundle = JSON.parse(file.content);
+        const payload = JSON.parse(await decryptBundle(state.password, bundle));
+        remote = payload.notes || {};
+      } catch (error) {
+        remote = {};
+      }
+    }
+    const merged = mergeNoteRecords(remote, notesSnapshot());
+    applyNotesMap(state.all, merged);
+    const encrypted = await encryptBundle(state.password, JSON.stringify({
+      v: 1,
+      updated: new Date().toISOString(),
+      notes: merged,
+    }));
+    const response = await fetch(`https://api.github.com/gists/${state.sync.gistId}`, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${state.sync.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        files: {
+          [state.sync.fileName]: { content: JSON.stringify(encrypted) },
+        },
+      }),
+    });
+    if (!response.ok) throw new Error("gist put");
+    localStorage.setItem("idealista-browser-notes", JSON.stringify(merged));
+    return true;
+  } catch (error) {
+    return false;
+  } finally {
+    state.syncBusy = false;
+  }
+}
+
+function scheduleSharedPush() {
+  clearTimeout(state.pushTimer);
+  state.pushTimer = setTimeout(async () => {
+    setSaveState("Синхронизирую…");
+    const ok = await pushSharedNotes();
+    setSaveState(ok ? "Сохранено у обоих" : "Не удалось синхронизировать");
+  }, 700);
+}
+
+function startSharedPolling() {
+  clearInterval(state.syncTimer);
+  state.syncTimer = setInterval(async () => {
+    if (document.hidden || state.syncBusy) return;
+    const before = JSON.stringify(notesSnapshot());
+    const ok = await pullSharedNotes();
+    if (!ok) return;
+    const after = JSON.stringify(notesSnapshot());
+    if (before !== after) {
+      const y = window.scrollY;
+      applyControls();
+      window.scrollTo(0, y);
+    }
+  }, 8000);
+  document.addEventListener("visibilitychange", async () => {
+    if (document.hidden || !state.sync) return;
+    const before = JSON.stringify(notesSnapshot());
+    await pullSharedNotes();
+    if (before !== JSON.stringify(notesSnapshot())) {
+      const y = window.scrollY;
+      applyControls();
+      window.scrollTo(0, y);
+    }
   });
 }
 
 async function commit(id, patch) {
   const item = byId(id);
+  const stamped = { ...patch, _ts: Date.now() };
+  if (item) Object.assign(item.notes, stamped);
   if (state.shared) {
-    if (item) Object.assign(item.notes, patch);
-    rememberBrowserNote(id, patch);
-    setSaveState("Сохранено в этом браузере");
+    rememberBrowserNote(id, stamped);
     paintStars(id, Boolean(item && item.notes["Избранное"]));
     if ("Статус" in patch || "Избранное" in patch) {
       const y = window.scrollY;
       applyControls();
       window.scrollTo(0, y);
+    }
+    if (state.sync) {
+      setSaveState("Сохраняю…");
+      scheduleSharedPush();
+    } else {
+      setSaveState("Сохранено только в этом браузере");
     }
     return;
   }
@@ -810,7 +1025,7 @@ async function commit(id, patch) {
     const response = await fetch("api/notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, notes: patch }),
+      body: JSON.stringify({ id, notes: stamped }),
     });
     if (!response.ok) throw new Error("save");
     const data = await response.json();
@@ -1028,25 +1243,11 @@ async function decryptVault(password) {
   const response = await fetch("vault.json");
   if (!response.ok) throw new Error("vault");
   const vault = await response.json();
-  const salt = Uint8Array.from(atob(vault.salt), (char) => char.charCodeAt(0));
-  const iv = Uint8Array.from(atob(vault.iv), (char) => char.charCodeAt(0));
-  const packed = Uint8Array.from(atob(vault.data), (char) => char.charCodeAt(0));
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    "PBKDF2",
-    false,
-    ["deriveKey"],
-  );
-  const key = await crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt, iterations: vault.iter, hash: "SHA-256" },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["decrypt"],
-  );
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, packed);
-  return JSON.parse(new TextDecoder().decode(plain));
+  const plain = await decryptBundle(password, vault);
+  const data = JSON.parse(plain);
+  state.password = password;
+  state.sync = await unlockSync(password, vault);
+  return data;
 }
 
 function askPassword() {
@@ -1085,12 +1286,23 @@ async function openShared() {
   return askPassword();
 }
 
-function start(data) {
+async function start(data) {
   state.all = data.listings || [];
-  if (state.shared) applyBrowserNotes(state.all);
+  if (state.shared) {
+    applyNotesMap(state.all, browserNotes());
+    if (state.sync) {
+      await pullSharedNotes();
+      await pushSharedNotes();
+      startSharedPolling();
+    }
+  }
   state.rates = data.rates || {};
   const checked = state.rates.checked ? `, сверено ${state.rates.checked}` : "";
-  const where = state.shared ? " Пометки с этого телефона остаются в его браузере." : " Правки: data/rent_rates.json.";
+  const where = state.shared
+    ? (state.sync
+      ? " Пометки общие: что отмечает жена, видно и вам (синхронизация каждые несколько секунд)."
+      : " Пометки пока только в этом браузере.")
+    : " Правки: data/rent_rates.json.";
   document.getElementById("source").textContent =
     `Оценка аренды — индекс Idealista, октябрь 2026${checked}. Где ставки нет, стоит «низкая точность» и цифра не подставляется.${where}`;
   if (state.shared) document.getElementById("export").classList.add("hidden");
