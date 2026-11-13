@@ -1240,37 +1240,59 @@ function showSite() {
 }
 
 async function decryptVault(password) {
-  const response = await fetch("vault.json");
+  const response = await fetch(`vault.json?cb=${Date.now()}`);
   if (!response.ok) throw new Error("vault");
   const vault = await response.json();
   const plain = await decryptBundle(password, vault);
   const data = JSON.parse(plain);
   state.password = password;
-  state.sync = await unlockSync(password, vault);
+  try {
+    state.sync = await unlockSync(password, vault);
+  } catch (error) {
+    state.sync = null;
+  }
   return data;
 }
 
 function askPassword() {
   const lock = document.getElementById("lock");
   const error = document.getElementById("lock-error");
+  const form = document.getElementById("lock-form");
+  const input = document.getElementById("lock-pass");
   lock.classList.remove("hidden");
   document.querySelector(".top").classList.add("hidden");
   document.querySelector("main").classList.add("hidden");
-  const input = document.getElementById("lock-pass");
+  input.value = "";
   input.focus();
   return new Promise((resolve) => {
-    document.getElementById("lock-form").addEventListener("submit", async (event) => {
+    const onSubmit = async (event) => {
       event.preventDefault();
       error.textContent = "";
+      const password = String(input.value || "").trim();
+      if (!password) {
+        error.textContent = "Введите пароль";
+        return;
+      }
+      const button = form.querySelector("button[type='submit']");
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Открываю…";
+      }
       try {
-        const data = await decryptVault(input.value);
-        sessionStorage.setItem("idealista-password", input.value);
+        const data = await decryptVault(password);
+        sessionStorage.setItem("idealista-password", password);
+        form.removeEventListener("submit", onSubmit);
         showSite();
         resolve(data);
       } catch (err) {
-        error.textContent = "Пароль не подошёл";
+        error.textContent = "Пароль не подошёл. Скопируйте его целиком, без пробелов в начале и в конце.";
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Открыть";
+        }
       }
-    });
+    };
+    form.addEventListener("submit", onSubmit);
   });
 }
 
@@ -1291,9 +1313,13 @@ async function start(data) {
   if (state.shared) {
     applyNotesMap(state.all, browserNotes());
     if (state.sync) {
-      await pullSharedNotes();
-      await pushSharedNotes();
-      startSharedPolling();
+      try {
+        await pullSharedNotes();
+        await pushSharedNotes();
+        startSharedPolling();
+      } catch (error) {
+        /* вход важнее синхронизации: сайт должен открыться даже если gist недоступен */
+      }
     }
   }
   state.rates = data.rates || {};
