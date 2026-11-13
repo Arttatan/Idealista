@@ -480,7 +480,7 @@ function cellFor(col, item) {
     case "payback":
       return textCell("Окупаемость", item.rent && item.rent.payback_years != null ? yearsLabel(item.rent.payback_years) : "—");
     case "metro":
-      return nearCell("Метро", item.metro && item.metro.full ? item.metro : item.transit);
+      return nearCell("Метро", item.metro);
     case "shop":
       return nearCell("Магазин", item.shop);
     case "condition":

@@ -194,10 +194,21 @@ def _yes_factor(value: str, yes: float, no: float, label: str) -> tuple[float, s
     return 1.0, f"{label} не указан"
 
 
+# Idealista иногда пишет приход или «Cidade da …» вместо ключа municipalities.
+# Только точные имена. Поиск по куску слова легко приписал бы чужую ставку.
+CITY_ALIASES = {
+    "cidade da maia": "Maia",
+    "nogueira e silva escura": "Maia",
+    "lemenhe, mouquim e jesufrei": "Vila Nova de Famalicão",
+    "frazao": "Paços de Ferreira",
+}
+
+
 def _find_municipality(city: str, table: dict) -> tuple[str, dict] | tuple[None, None]:
     target = fold(city)
     if not target:
         return None, None
+    target = fold(CITY_ALIASES.get(target, target))
     for name, entry in table.items():
         if str(name).startswith("_"):
             continue
