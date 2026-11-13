@@ -9,3 +9,4 @@ data/seen_ids.json
 data/update.log
 data/last_digest.txt
 data/fresh_cards.json
+data/notes_blob_init.json
