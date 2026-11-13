@@ -40,7 +40,7 @@ LOG_PATH = DATA / "update.log"
 
 SEARCH_URL = (
     "https://www.idealista.pt/en/multi/comprar-casas/abW,azY/"
-    "com-preco-max_300000,t2,t3,t4-t5,publicado_ultimas-48-horas,"
+    "com-preco-max_320000,t2,t3,t4-t5,publicado_ultimas-48-horas,"
     "ultimo-andar,andares-intermedios,bom-estado,"
     "eficiencia-energetica-alta,eficiencia-energetica-media/"
     "?ordem=atualizado-desc"

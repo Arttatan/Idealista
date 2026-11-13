@@ -247,18 +247,35 @@ main { padding: 8px 28px 48px; max-width: 1280px; margin: 0 auto; }
   position: relative;
 }
 .card.is-new {
-  border-color: rgba(15, 111, 106, 0.4);
-  background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 42%);
-  box-shadow: 0 10px 28px rgba(15, 111, 106, 0.12);
+  border: 2px solid #f0a202;
+  background:
+    linear-gradient(180deg, rgba(255, 214, 102, 0.55) 0%, rgba(255, 244, 214, 0.92) 38%, var(--surface) 72%);
+  box-shadow:
+    0 0 0 3px rgba(240, 162, 2, 0.22),
+    0 14px 34px rgba(180, 110, 0, 0.18);
+}
+.card.is-new::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 5px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, #f0a202, #ffd166 45%, #f77f00);
 }
 :root[data-theme="dark"] .card.is-new {
-  border-color: rgba(125, 206, 198, 0.45);
-  background: linear-gradient(180deg, #1a3330 0%, var(--surface) 48%);
+  border-color: #ffc14d;
+  background: linear-gradient(180deg, #4a3510 0%, #2a2418 40%, var(--surface) 78%);
+  box-shadow:
+    0 0 0 3px rgba(255, 193, 77, 0.28),
+    0 14px 34px rgba(0, 0, 0, 0.35);
 }
 .badge.is-new-badge {
-  background: var(--accent);
-  color: var(--accent-ink);
-  font-weight: 600;
+  background: #f0a202;
+  color: #1f1400;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 2px rgba(240, 162, 2, 0.25);
 }
 .card:hover { box-shadow: 0 14px 34px rgba(28, 36, 33, 0.1); }
 .card-top, .meta, .flags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -379,7 +396,13 @@ td.rent-cell small { display: block; font-weight: 500; color: var(--ink); font-s
   padding: 8px 8px;
   font-size: 14px;
 }
-tbody tr.is-new { background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
+tbody tr.is-new {
+  background: linear-gradient(90deg, rgba(255, 214, 102, 0.45), rgba(255, 244, 214, 0.35));
+  box-shadow: inset 4px 0 0 #f0a202;
+}
+:root[data-theme="dark"] tbody tr.is-new {
+  background: linear-gradient(90deg, rgba(74, 53, 16, 0.85), transparent);
+}
 
 .map {
   height: min(70vh, 720px);

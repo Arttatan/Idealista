@@ -229,12 +229,15 @@ function filtered() {
     return true;
   });
   items.sort((a, b) => {
-    const aFav = Boolean(a.notes && a.notes["Избранное"]);
-    const bFav = Boolean(b.notes && b.notes["Избранное"]);
-    if (aFav !== bFav) return aFav ? -1 : 1;
-    const aNew = isNew(a);
-    const bNew = isNew(b);
-    if (aNew !== bNew) return aNew ? -1 : 1;
+    const rank = (item) => {
+      if (item.notes && item.notes["Избранное"]) return 0;
+      if ((item.notes && item.notes.Статус) === "Интересно") return 1;
+      if (isNew(item)) return 2;
+      return 3;
+    };
+    const aRank = rank(a);
+    const bRank = rank(b);
+    if (aRank !== bRank) return aRank - bRank;
     const left = sortValue(a, sortKey);
     const right = sortValue(b, sortKey);
     const leftMissing = left == null || left === "";
